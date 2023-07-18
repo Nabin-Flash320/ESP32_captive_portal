@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set WiFi</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: aliceblue;
+            border: 0px;
+            padding: 10px;
+            margin: 0px;
+        }
+
+        .div-main-container {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid black;
+            border-radius: 50px;
+            width: 85%;
+            height: 100%;
+            padding: 100px;
+            left: 3rem;
+            top: 3rem;
+            background-color: #E35869;
+        }
+
+        .div-login-form {
+            background-color: #FFFFFF;
+            border: 1px solid black;
+            border-radius: 25px;
+            width: 50rem;
+            height: 40rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: top;
+            align-items: center;
+            position: relative;
+        }
+
+        .span-login-title {
+            font-family: sans-serif;
+            margin: 1rem 0rem 1rem 0rem;
+            font-size: 8rem;
+            color: #2D3B55;
+        }
+
+        .div-login-inputs {
+            border: 2px solid #2D3B55;
+            border-radius: 5px;
+            background-color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            position: relative;
+            width: 30rem;
+            height: 7.5rem;
+        }
+
+        .input-login-ssid {
+            border: 2px solid #2D3B55;
+            border-radius: 5px;
+            position: relative;
+            top: 1rem;
+            width: 98%;
+            padding: 5px;
+            font-size: medium;
+            margin: 10px 10px 10px 5px;
+        }
+
+        .input-login-pswd {
+            border: 2px solid #2D3B55;
+            border-radius: 5px;
+            position: relative;
+            top: 1rem;
+            width: 98%;
+            padding: 5px;
+            font-size: medium;
+            margin: 10px 10px 10px 5px;
+        }
+
+        .div-login-button {
+            border-radius: 5px;
+            background-color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            width: 30rem;
+            height: 3rem;
+            margin-top: 10px;
+        }
+
+        .div-login-button-button {
+            border: 2px solid #2D3B55;
+            font-size: xx-large;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            background-color: #E8E9EC;
+            color: #2D3B55;
+            border-radius: 10px;
+        }
+
+        .div-login-button-button:hover {
+            background-color: #2D3B55;
+            color: #E8E9EC;
+        }
+
+        .div-login-show-pass {
+            position: relative;
+            width: 60%;
+            margin-top: 0.5rem;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-start;
+            color: #2D3B55;
+            font-weight: lighter;
+            padding: 5px;
+        }
+
+        .div-login-error {
+            position: relative;
+            top: 1rem;
+            padding: 1rem;
+            color: red;
+        }
+
+        .span-login-error {
+            color: red;
+            font-size: large;
+            font-weight: 900;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="div-main-container">
+        <div class="div-login-form">
+            <span class="span-login-title">Set WiFi</span>
+            <div class="div-login-inputs">
+                <input class="input-login-ssid" id="set-ssid-id" type="text" placeholder="SSID">
+                <input class="input-login-pswd" id="set-pswd-id" type="password" placeholder="PASSWORD">
+            </div>
+            <div class="div-login-show-pass">
+                <input type="checkbox" class="input-login-show-pass" name="show-password" id="input-login-show-pass-id">
+                <label for="show-password">Show password?</label>
+            </div>
+            <div class="div-login-button">
+                <button class="div-login-button-button" id="set-button-id" type="button">Set</button>
+            </div>
+            <div class="div-login-error">
+                <span class="span-login-error" id="span-login-error-id"></span>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+
+    async function send_ap_set_request(ssid, password) {
+        let ap_url = "/config"
+        let ap_response = await fetch(ap_url, {
+            method: "POST",
+            body: JSON.stringify({
+                SSID: ssid,
+                PSWD: password
+            })
+        })
+        return ap_response.json()
+    }
+
+    addEventListener("DOMContentLoaded", (dom_content_loaded_event) => {
+        const set_button_element = document.getElementById("set-button-id")
+        const ssid_input_element = document.getElementById("set-ssid-id")
+        const pswd_input_element = document.getElementById("set-pswd-id")
+        const error_span_element = document.getElementById("span-login-error-id")
+        const show_password_checkbox_element = document.getElementById("input-login-show-pass-id")
+
+        set_button_element.addEventListener("click", (set_button_cliecked_event) => {
+            error_span_element.innerHTML = ""
+            let ssid_input_element_value = ssid_input_element.value
+            let pswd_input_element_value = pswd_input_element.value
+            if ((0 !== ssid_input_element_value.length) || (0 !== pswd_input_element_value.length)) {
+                console.log("SSID is ", ssid_input_element_value)
+                console.log("Password is ", pswd_input_element_value)
+
+                send_ap_set_request(ssid_input_element_value, pswd_input_element_value).then((ap_response) => {
+                    console.log(ap_response)
+                })
+
+            }
+            else {
+                console.log("Empty SSID or password.")
+                error_span_element.innerHTML = "Either SSID or password is empty!"
+            }
+        })
+
+        show_password_checkbox_element.addEventListener("click", (show_password_checkbox_event) => {
+            if("password" === pswd_input_element.type)
+            {
+                pswd_input_element.type = "text"
+            }
+            else
+            {
+                pswd_input_element.type = "password"
+            }
+        })
+    })
+</script>
+
+</html>
